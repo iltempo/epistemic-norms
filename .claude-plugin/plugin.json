@@ -1,7 +1,7 @@
 {
   "name": "epistemic-norms",
   "description": "Anti-sycophancy norms for Claude Code — flag the user's framing, steelman the opposition, label judgment calls, and recommend fresh-session checks for consequential decisions.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Alexander Greim"
   },
