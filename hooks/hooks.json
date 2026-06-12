@@ -6,6 +6,10 @@
           {
             "type": "command",
             "command": "cat \"${CLAUDE_PLUGIN_ROOT}/norms.md\""
+          },
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\": \"Epistemic norms loaded.\"}'"
           }
         ]
       }
