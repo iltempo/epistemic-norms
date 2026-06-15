@@ -12,7 +12,7 @@ test("package manifest declares a pi extension package", async () => {
   const pkg = JSON.parse(await readText("package.json"));
 
   assert.equal(pkg.name, "epistemic-norms");
-  assert.equal(pkg.version, "1.1.0");
+  assert.equal(pkg.version, "1.2.0");
   assert.ok(pkg.keywords.includes("pi-package"));
   assert.deepEqual(pkg.pi.extensions, ["./extensions"]);
   assert.equal(pkg.peerDependencies["@earendil-works/pi-coding-agent"], "*");

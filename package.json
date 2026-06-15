@@ -1,6 +1,6 @@
 {
   "name": "epistemic-norms",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Anti-sycophancy norms for Claude Code and pi — flag framing, steelman opposition, label judgment calls, and recommend fresh-session checks for consequential decisions.",
   "keywords": [
     "pi-package",
