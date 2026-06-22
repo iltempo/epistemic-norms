@@ -1,6 +1,6 @@
 # epistemic-norms
 
-A Claude Code plugin and pi package that injects anti-sycophancy norms into every session.
+A Claude Code and Codex plugin, plus a pi package, that injects anti-sycophancy norms into every session.
 
 ## Why
 
@@ -27,6 +27,10 @@ The full text lives in [`norms.md`](norms.md).
 /plugin install epistemic-norms@iltempo-claude-plugins
 ```
 
+### Codex
+
+Install the repository as a Codex plugin through a local or shared plugin marketplace. Codex discovers the manifest at `.codex-plugin/plugin.json` and asks you to review and trust the bundled session hook before it runs.
+
 ### pi
 
 Install directly from this repository:
@@ -43,9 +47,11 @@ pi -e git:github.com/iltempo/epistemic-norms
 
 ## How it works
 
-Both integrations use the same [`norms.md`](norms.md), so there is one source of truth to audit.
+All three integrations use the same [`norms.md`](norms.md), so there is one source of truth to audit.
 
 Claude Code uses a single `SessionStart` hook that runs `cat norms.md`; the file's content is added to Claude's context before your first prompt.
+
+Codex discovers the same hook from `hooks/hooks.json`. It runs at session start, resume, clear, and compaction, adding the norms to the model-visible context throughout the thread lifecycle.
 
 pi loads the package's extension from `extensions/epistemic-norms.ts`. On each prompt, the extension appends `norms.md` to pi's system prompt with the `before_agent_start` lifecycle hook.
 

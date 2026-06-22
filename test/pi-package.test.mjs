@@ -12,7 +12,7 @@ test("package manifest declares a pi extension package", async () => {
   const pkg = JSON.parse(await readText("package.json"));
 
   assert.equal(pkg.name, "epistemic-norms");
-  assert.equal(pkg.version, "1.2.0");
+  assert.equal(pkg.version, "1.3.0");
   assert.ok(pkg.keywords.includes("pi-package"));
   assert.deepEqual(pkg.pi.extensions, ["./extensions"]);
   assert.equal(pkg.peerDependencies["@earendil-works/pi-coding-agent"], "*");
@@ -27,10 +27,25 @@ test("pi extension injects the shared norms file into the system prompt", async 
   assert.match(extension, /systemPrompt/);
 });
 
-test("README documents both Claude Code and pi installation", async () => {
+test("Codex plugin manifest declares the session-wide integration", async () => {
+  const manifest = JSON.parse(await readText(".codex-plugin/plugin.json"));
+  const hooks = JSON.parse(await readText("hooks/hooks.json"));
+
+  assert.equal(manifest.name, "epistemic-norms");
+  assert.equal(manifest.version, "1.3.0");
+  assert.equal(manifest.interface.displayName, "Epistemic Norms");
+  assert.equal(manifest.hooks, undefined);
+  assert.match(
+    hooks.hooks.SessionStart[0].hooks[0].command,
+    /PLUGIN_ROOT:-\$\{CLAUDE_PLUGIN_ROOT\}/,
+  );
+});
+
+test("README documents Claude Code, Codex, and pi installation", async () => {
   const readme = await readText("README.md");
 
   assert.match(readme, /### Claude Code/);
+  assert.match(readme, /### Codex/);
   assert.match(readme, /### pi/);
   assert.match(readme, /pi install git:github\.com\/iltempo\/epistemic-norms/);
   assert.match(readme, /extensions\/epistemic-norms\.ts/);
