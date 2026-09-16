@@ -19,7 +19,8 @@ test("package manifest declares a pi extension package", async () => {
   assert.match(pkg.version, /^\d+\.\d+\.\d+$/);
   assert.ok(pkg.keywords.includes("pi-package"));
   assert.deepEqual(pkg.pi.extensions, ["./extensions"]);
-  assert.equal(pkg.peerDependencies["@earendil-works/pi-coding-agent"], "*");
+  assert.equal(pkg.dependencies, undefined);
+  assert.equal(pkg.peerDependencies, undefined);
 });
 
 test("version, date, and norms digest stay synchronized", async () => {
@@ -66,7 +67,7 @@ test("hook output keeps verifiable norms provenance in context", async () => {
 test("pi extension injects the shared norms file into the system prompt", async () => {
   const extension = await readText("extensions/epistemic-norms.ts");
 
-  assert.match(extension, /from "@earendil-works\/pi-coding-agent"/);
+  assert.doesNotMatch(extension, /@earendil-works\/pi-coding-agent/);
   assert.match(extension, /"norms\.md"/);
   assert.match(extension, /norms-metadata\.json/);
   assert.match(extension, /createHash\("sha256"\)/);
