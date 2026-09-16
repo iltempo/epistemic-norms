@@ -1,6 +1,6 @@
 {
   "name": "epistemic-norms",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Epistemic norms that aim to reduce sycophancy, weigh credible alternatives, and encourage proportionate verification of claims.",
   "keywords": [
     "pi-package",
@@ -26,8 +26,5 @@
     "extensions": [
       "./extensions"
     ]
-  },
-  "peerDependencies": {
-    "@earendil-works/pi-coding-agent": "*"
   }
 }

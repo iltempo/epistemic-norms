@@ -1,8 +1,16 @@
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+interface ExtensionAPI {
+  on(
+    event: "before_agent_start",
+    handler: (event: { systemPrompt: string }) => Promise<{
+      systemPrompt: string;
+    }>,
+  ): void;
+}
 
 const extensionDir = dirname(fileURLToPath(import.meta.url));
 const root = join(extensionDir, "..");
