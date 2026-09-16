@@ -9,7 +9,7 @@
           },
           {
             "type": "command",
-            "command": "echo '{\"systemMessage\": \"Epistemic norms loaded.\"}'"
+            "command": "echo '{\"systemMessage\": \"Epistemic norms v1.4.0 loaded.\"}'"
           }
         ]
       }
