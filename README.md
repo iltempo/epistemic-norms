@@ -31,7 +31,14 @@ The full text lives in [`norms.md`](norms.md).
 
 ### Codex
 
-Install the repository as a Codex plugin through a local or shared plugin marketplace. Codex discovers the manifest at `.codex-plugin/plugin.json` and asks you to review and trust the bundled session hook before it runs.
+Add the marketplace, then install the plugin:
+
+```sh
+codex plugin marketplace add iltempo/claude-plugins
+codex plugin add epistemic-norms@iltempo-claude-plugins
+```
+
+Codex asks you to review and trust the bundled session hook before it runs.
 
 ### pi
 

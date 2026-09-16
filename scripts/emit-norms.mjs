@@ -14,6 +14,15 @@ if (sha256 !== metadata.sha256) {
   );
 }
 
+if (process.argv.includes("--system-message")) {
+  process.stdout.write(
+    `${JSON.stringify({
+      systemMessage: `Epistemic norms v${metadata.version} loaded.`,
+    })}\n`,
+  );
+  process.exit(0);
+}
+
 process.stdout.write(
   `${norms.trimEnd()}\n\n` +
     `Epistemic norms provenance: version ${metadata.version}; ` +

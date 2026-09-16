@@ -1,7 +1,7 @@
 {
   "name": "epistemic-norms",
   "description": "Epistemic norms that aim to reduce sycophancy, weigh credible alternatives, and encourage proportionate verification of claims.",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "author": {
     "name": "Alexander Greim"
   },
