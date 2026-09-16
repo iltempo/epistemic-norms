@@ -1,7 +1,7 @@
 {
   "name": "epistemic-norms",
-  "version": "1.3.0",
-  "description": "Anti-sycophancy norms for Codex that flag framing, steelman opposition, label judgment calls, and encourage independent checks.",
+  "version": "1.4.0",
+  "description": "Epistemic norms that aim to reduce sycophancy, weigh credible alternatives, and encourage proportionate verification of claims.",
   "author": {
     "name": "Alexander Greim"
   },
@@ -14,8 +14,8 @@
   ],
   "interface": {
     "displayName": "Epistemic Norms",
-    "shortDescription": "Apply anti-sycophancy norms to every Codex session",
-    "longDescription": "Inject a concise set of epistemic norms at session start so Codex challenges loaded framing, separates facts from judgment, and avoids reflexive agreement.",
+    "shortDescription": "Encourage evidence-based judgment and verification",
+    "longDescription": "Inject epistemic norms that encourage respect for user goals, evidence-weighted alternatives, valid corrections, and proportionate checks of apparently authoritative claims.",
     "developerName": "Alexander Greim",
     "category": "Productivity",
     "capabilities": [
