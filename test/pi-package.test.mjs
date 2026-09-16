@@ -12,7 +12,7 @@ test("package manifest declares a pi extension package", async () => {
   const pkg = JSON.parse(await readText("package.json"));
 
   assert.equal(pkg.name, "epistemic-norms");
-  assert.equal(pkg.version, "1.4.0");
+  assert.equal(pkg.version, "1.4.1");
   assert.ok(pkg.keywords.includes("pi-package"));
   assert.deepEqual(pkg.pi.extensions, ["./extensions"]);
   assert.equal(pkg.peerDependencies["@earendil-works/pi-coding-agent"], "*");
@@ -33,7 +33,7 @@ test("Codex plugin manifest declares the session-wide integration", async () => 
   const hooks = JSON.parse(await readText("hooks/hooks.json"));
 
   assert.equal(manifest.name, "epistemic-norms");
-  assert.equal(manifest.version, "1.4.0");
+  assert.equal(manifest.version, "1.4.1");
   assert.equal(manifest.interface.displayName, "Epistemic Norms");
   assert.equal(manifest.hooks, undefined);
   assert.match(
