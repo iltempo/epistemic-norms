@@ -28,6 +28,7 @@ test("pi extension injects the shared norms file into the system prompt", async 
 });
 
 test("Codex plugin manifest declares the session-wide integration", async () => {
+  const pkg = JSON.parse(await readText("package.json"));
   const manifest = JSON.parse(await readText(".codex-plugin/plugin.json"));
   const hooks = JSON.parse(await readText("hooks/hooks.json"));
 
@@ -38,6 +39,10 @@ test("Codex plugin manifest declares the session-wide integration", async () => 
   assert.match(
     hooks.hooks.SessionStart[0].hooks[0].command,
     /PLUGIN_ROOT:-\$\{CLAUDE_PLUGIN_ROOT\}/,
+  );
+  assert.match(
+    hooks.hooks.SessionStart[0].hooks[1].command,
+    new RegExp(`Epistemic norms v${pkg.version.replaceAll(".", "\\.")} loaded\\.`),
   );
 });
 
