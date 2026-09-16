@@ -5,11 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/norms.md\""
-          },
-          {
-            "type": "command",
-            "command": "echo '{\"systemMessage\": \"Epistemic norms v1.4.1 loaded.\"}'"
+            "command": "node \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/emit-norms.mjs\""
           }
         ]
       }
