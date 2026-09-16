@@ -64,6 +64,18 @@ test("hook output keeps verifiable norms provenance in context", async () => {
   assert.match(stdout, new RegExp(`SHA-256 ${metadata.sha256}`));
 });
 
+test("hook output shows the loaded norms version", async () => {
+  const metadata = JSON.parse(await readText("norms-metadata.json"));
+  const { stdout } = await execFileAsync(process.execPath, [
+    new URL("scripts/emit-norms.mjs", root).pathname,
+    "--system-message",
+  ]);
+
+  assert.deepEqual(JSON.parse(stdout), {
+    systemMessage: `Epistemic norms v${metadata.version} loaded.`,
+  });
+});
+
 test("pi extension injects the shared norms file into the system prompt", async () => {
   const extension = await readText("extensions/epistemic-norms.ts");
 
@@ -91,7 +103,11 @@ test("Codex plugin manifest declares the session-wide integration", async () => 
     hooks.hooks.SessionStart[0].hooks[0].command,
     /scripts\/emit-norms\.mjs/,
   );
-  assert.equal(hooks.hooks.SessionStart[0].hooks.length, 1);
+  assert.match(
+    hooks.hooks.SessionStart[0].hooks[1].command,
+    /scripts\/emit-norms\.mjs\" --system-message$/,
+  );
+  assert.equal(hooks.hooks.SessionStart[0].hooks.length, 2);
 });
 
 test("README documents Claude Code, Codex, and pi installation", async () => {
