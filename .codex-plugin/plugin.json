@@ -1,6 +1,6 @@
 {
   "name": "epistemic-norms",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Epistemic norms that aim to reduce sycophancy, weigh credible alternatives, and encourage proportionate verification of claims.",
   "author": {
     "name": "Alexander Greim"
@@ -12,10 +12,12 @@
     "anti-sycophancy",
     "critical-thinking"
   ],
+  "skills": "./codex/skills/",
+  "hooks": {},
   "interface": {
     "displayName": "Epistemic Norms",
     "shortDescription": "Encourage evidence-based judgment and verification",
-    "longDescription": "Inject epistemic norms that encourage respect for user goals, evidence-weighted alternatives, valid corrections, and proportionate checks of apparently authoritative claims.",
+    "longDescription": "Provide epistemic norms as a skill that encourages respect for user goals, evidence-weighted alternatives, valid corrections, and proportionate checks of apparently authoritative claims.",
     "developerName": "Alexander Greim",
     "category": "Productivity",
     "capabilities": [

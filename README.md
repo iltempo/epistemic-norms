@@ -1,6 +1,6 @@
 # epistemic-norms
 
-A Claude Code and Codex plugin, plus a pi package, that injects anti-sycophancy norms into every session.
+A Claude Code and Codex plugin, plus a pi package, that gives the model a set of anti-sycophancy norms: in every session for Claude Code and pi, on demand for Codex.
 
 ## Why
 
@@ -38,7 +38,7 @@ codex plugin marketplace add iltempo/claude-plugins
 codex plugin add epistemic-norms@iltempo-claude-plugins
 ```
 
-Codex asks you to review and trust the bundled session hook before it runs.
+The Codex plugin ships no hooks, so there is nothing to approve after installing or updating.
 
 ### pi
 
@@ -58,15 +58,19 @@ pi -e git:github.com/iltempo/epistemic-norms
 
 All three integrations use the same [`norms.md`](norms.md). Its version, date, and SHA-256 fingerprint live in [`norms-metadata.json`](norms-metadata.json), giving reviewers a compact provenance record to audit.
 
-Claude Code and Codex share one `SessionStart` hook in `hooks/hooks.json`. It prints `norms.md` followed by the provenance line from [`provenance.txt`](provenance.txt), which both tools add to the model's context, and shows a one-line "loaded" banner. It runs at startup, after `/clear`, and after compaction; a resumed session already holds the norms in its transcript. The hook script, [`hooks/session-start`](hooks/session-start), uses only POSIX shell builtins, so it needs no Node and keeps working when the hook runs with an empty `PATH`. It supports macOS and Linux; Windows is not supported.
+Claude Code uses a `SessionStart` hook in `hooks/hooks.json`. It prints `norms.md` followed by the provenance line from [`provenance.txt`](provenance.txt), which Claude Code adds to the model's context, and shows a one-line "loaded" banner. It runs at startup, after `/clear`, and after compaction; a resumed session already holds the norms in its transcript. The hook script, [`hooks/session-start`](hooks/session-start), uses only POSIX shell builtins, so it needs no Node and keeps working when the hook runs with an empty `PATH`. It supports macOS and Linux; Windows is not supported.
+
+Codex loads the norms as a skill, [`codex/skills/epistemic-norms/SKILL.md`](codex/skills/epistemic-norms/SKILL.md), whose body is `norms.md` plus the provenance line. The Codex manifest sets `"hooks": {}`, so Codex skips the hook and only the skill's description sits in context; the model loads the full norms when a question asks for an opinion, judgment, or recommendation, or signals a preferred answer. You can also load it yourself with `$epistemic-norms`.
 
 pi loads the package's extension from `extensions/epistemic-norms.ts`. On each prompt, the extension verifies the fingerprint and appends `norms.md` plus its provenance record to pi's system prompt with the `before_agent_start` lifecycle hook.
 
-Every pull request runs the synchronization tests. A change fails verification unless the package and plugin versions match the provenance version, the date is valid, the recorded fingerprint matches the exact bytes of `norms.md`, `provenance.txt` matches the metadata, and the hook banner shows the same version.
+Every pull request runs the synchronization tests. A change fails verification unless the package and plugin versions match the provenance version, the date is valid, the recorded fingerprint matches the exact bytes of `norms.md`, `provenance.txt` matches the metadata, the hook banner shows the same version, and the Codex skill body matches `norms.md` plus `provenance.txt`. To bump the version, run `npm run sync -- <version>`; after editing the norms text, run `npm run sync` to refresh the fingerprint and every file that carries it.
 
 That's the entire mechanism; there is nothing else to audit.
 
 ## Honest limits
+
+In Codex the norms apply only in turns where the model loads the skill. In a small headless test (Codex 0.169, five opinion prompts run twice each) it loaded the skill in 7 of 10 runs, including both runs of a leading "…objectively better, right?" question, and missed one run of another leading question. Load it yourself with `$epistemic-norms` when it matters.
 
 These norms aim to reduce framing-driven agreement and unsupported reliance on apparently authoritative claims. Their effectiveness has not yet been established by comparative evaluation. They do not establish model neutrality or eliminate fixed biases. They can also produce performative criticism: pushback that exists because it was requested. Treat instructed disagreement with the same scrutiny as instructed agreement, and keep some of your evaluation outside the conversation: re-ask important questions in fresh sessions, compare answers across opposed framings, and check predictions against outcomes.
 

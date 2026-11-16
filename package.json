@@ -1,6 +1,6 @@
 {
   "name": "epistemic-norms",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Epistemic norms that aim to reduce sycophancy, weigh credible alternatives, and encourage proportionate verification of claims.",
   "keywords": [
     "pi-package",
@@ -20,6 +20,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test test/*.test.mjs",
+    "sync": "node scripts/sync.mjs",
     "verify": "npm test"
   },
   "pi": {
