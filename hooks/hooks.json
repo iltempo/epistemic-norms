@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "R=\"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}\"; while IFS= read -r l || [ -n \"$l\" ]; do printf '%s\\n' \"$l\"; done < \"$R/norms.md\"; printf '\\n'; while IFS= read -r l || [ -n \"$l\" ]; do printf '%s\\n' \"$l\"; done < \"$R/provenance.txt\""
+            "command": ". \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/hooks/session-start\""
           },
           {
             "type": "command",
