@@ -2,14 +2,15 @@
   "hooks": {
     "SessionStart": [
       {
+        "matcher": "startup|clear|compact",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/emit-norms.mjs\""
+            "command": "R=\"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}\"; while IFS= read -r l || [ -n \"$l\" ]; do printf '%s\\n' \"$l\"; done < \"$R/norms.md\"; printf '\\n'; while IFS= read -r l || [ -n \"$l\" ]; do printf '%s\\n' \"$l\"; done < \"$R/provenance.txt\""
           },
           {
             "type": "command",
-            "command": "node \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/emit-norms.mjs\" --system-message"
+            "command": "echo '{\"systemMessage\": \"Epistemic norms v1.4.5 loaded.\"}'"
           }
         ]
       }

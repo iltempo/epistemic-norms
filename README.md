@@ -58,13 +58,11 @@ pi -e git:github.com/iltempo/epistemic-norms
 
 All three integrations use the same [`norms.md`](norms.md). Its version, date, and SHA-256 fingerprint live in [`norms-metadata.json`](norms-metadata.json), giving reviewers a compact provenance record to audit.
 
-Claude Code uses a single `SessionStart` hook that verifies and emits `norms.md`; its content and provenance record are added to Claude's context before your first prompt.
-
-Codex discovers the same hook from `hooks/hooks.json`. It runs at session start, resume, clear, and compaction, adding the norms to the model-visible context throughout the thread lifecycle.
+Claude Code and Codex share one `SessionStart` hook in `hooks/hooks.json`. It prints `norms.md` followed by the provenance line from [`provenance.txt`](provenance.txt), which both tools add to the model's context, and shows a one-line "loaded" banner. It runs at startup, after `/clear`, and after compaction; a resumed session already holds the norms in its transcript. The hook uses only shell builtins, so it needs no Node and keeps working when the hook runs with an empty `PATH`.
 
 pi loads the package's extension from `extensions/epistemic-norms.ts`. On each prompt, the extension verifies the fingerprint and appends `norms.md` plus its provenance record to pi's system prompt with the `before_agent_start` lifecycle hook.
 
-Every pull request runs the synchronization tests. A change fails verification unless the package and plugin versions match the provenance version, the date is valid, and the recorded fingerprint matches the exact bytes of `norms.md`.
+Every pull request runs the synchronization tests. A change fails verification unless the package and plugin versions match the provenance version, the date is valid, the recorded fingerprint matches the exact bytes of `norms.md`, `provenance.txt` matches the metadata, and the hook banner shows the same version.
 
 That's the entire mechanism; there is nothing else to audit.
 

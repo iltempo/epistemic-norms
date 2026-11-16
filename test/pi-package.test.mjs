@@ -49,29 +49,37 @@ test("version, date, and norms digest stay synchronized", async () => {
   );
 });
 
-test("hook output keeps verifiable norms provenance in context", async () => {
-  const metadata = JSON.parse(await readText("norms-metadata.json"));
-  const { stdout } = await execFileAsync(process.execPath, [
-    new URL("scripts/emit-norms.mjs", root).pathname,
-  ]);
+async function runHook(index) {
+  const hooks = JSON.parse(await readText("hooks/hooks.json"));
+  const { command } = hooks.hooks.SessionStart[0].hooks[index];
+  // Empty PATH: the hook must work with shell builtins alone.
+  const { stdout } = await execFileAsync("/bin/sh", ["-c", command], {
+    env: { PLUGIN_ROOT: new URL(".", root).pathname },
+  });
+  return stdout;
+}
 
-  assert.match(stdout, /# Epistemic Norms/);
-  assert.match(
-    stdout,
-    new RegExp(`version ${metadata.version.replaceAll(".", "\\.")}`),
+test("provenance file matches the norms metadata", async () => {
+  const metadata = JSON.parse(await readText("norms-metadata.json"));
+
+  assert.equal(
+    await readText("provenance.txt"),
+    `Epistemic norms provenance: version ${metadata.version}; ` +
+      `dated ${metadata.date}; SHA-256 ${metadata.sha256}.\n`,
   );
-  assert.match(stdout, new RegExp(`dated ${metadata.date}`));
-  assert.match(stdout, new RegExp(`SHA-256 ${metadata.sha256}`));
 });
 
-test("hook output shows the loaded norms version", async () => {
-  const metadata = JSON.parse(await readText("norms-metadata.json"));
-  const { stdout } = await execFileAsync(process.execPath, [
-    new URL("scripts/emit-norms.mjs", root).pathname,
-    "--system-message",
-  ]);
+test("hook emits the norms and provenance using shell builtins only", async () => {
+  const norms = await readText("norms.md");
+  const provenance = await readText("provenance.txt");
 
-  assert.deepEqual(JSON.parse(stdout), {
+  assert.equal(await runHook(0), `${norms.trimEnd()}\n\n${provenance}`);
+});
+
+test("hook banner shows the current norms version", async () => {
+  const metadata = JSON.parse(await readText("norms-metadata.json"));
+
+  assert.deepEqual(JSON.parse(await runHook(1)), {
     systemMessage: `Epistemic norms v${metadata.version} loaded.`,
   });
 });
@@ -95,17 +103,10 @@ test("Codex plugin manifest declares the session-wide integration", async () => 
   assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
   assert.equal(manifest.interface.displayName, "Epistemic Norms");
   assert.equal(manifest.hooks, undefined);
+  assert.equal(hooks.hooks.SessionStart[0].matcher, "startup|clear|compact");
   assert.match(
     hooks.hooks.SessionStart[0].hooks[0].command,
     /PLUGIN_ROOT:-\$\{CLAUDE_PLUGIN_ROOT\}/,
-  );
-  assert.match(
-    hooks.hooks.SessionStart[0].hooks[0].command,
-    /scripts\/emit-norms\.mjs/,
-  );
-  assert.match(
-    hooks.hooks.SessionStart[0].hooks[1].command,
-    /scripts\/emit-norms\.mjs\" --system-message$/,
   );
   assert.equal(hooks.hooks.SessionStart[0].hooks.length, 2);
 });
