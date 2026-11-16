@@ -49,31 +49,25 @@ test("version, date, and norms digest stay synchronized", async () => {
   );
 });
 
-test("hook output keeps verifiable norms provenance in context", async () => {
+test("hook output carries norms, provenance, and the loaded banner", async () => {
   const metadata = JSON.parse(await readText("norms-metadata.json"));
+  const norms = await readText("norms.md");
   const { stdout } = await execFileAsync(process.execPath, [
     new URL("scripts/emit-norms.mjs", root).pathname,
   ]);
+  const output = JSON.parse(stdout);
 
-  assert.match(stdout, /# Epistemic Norms/);
-  assert.match(
-    stdout,
-    new RegExp(`version ${metadata.version.replaceAll(".", "\\.")}`),
+  assert.equal(
+    output.systemMessage,
+    `Epistemic norms v${metadata.version} loaded.`,
   );
-  assert.match(stdout, new RegExp(`dated ${metadata.date}`));
-  assert.match(stdout, new RegExp(`SHA-256 ${metadata.sha256}`));
-});
-
-test("hook output shows the loaded norms version", async () => {
-  const metadata = JSON.parse(await readText("norms-metadata.json"));
-  const { stdout } = await execFileAsync(process.execPath, [
-    new URL("scripts/emit-norms.mjs", root).pathname,
-    "--system-message",
-  ]);
-
-  assert.deepEqual(JSON.parse(stdout), {
-    systemMessage: `Epistemic norms v${metadata.version} loaded.`,
-  });
+  assert.equal(output.hookSpecificOutput.hookEventName, "SessionStart");
+  assert.equal(
+    output.hookSpecificOutput.additionalContext,
+    `${norms.trimEnd()}\n\n` +
+      `Epistemic norms provenance: version ${metadata.version}; ` +
+      `dated ${metadata.date}; SHA-256 ${metadata.sha256}.\n`,
+  );
 });
 
 test("pi extension injects the shared norms file into the system prompt", async () => {
@@ -103,11 +97,7 @@ test("Codex plugin manifest declares the session-wide integration", async () => 
     hooks.hooks.SessionStart[0].hooks[0].command,
     /scripts\/emit-norms\.mjs/,
   );
-  assert.match(
-    hooks.hooks.SessionStart[0].hooks[1].command,
-    /scripts\/emit-norms\.mjs\" --system-message$/,
-  );
-  assert.equal(hooks.hooks.SessionStart[0].hooks.length, 2);
+  assert.equal(hooks.hooks.SessionStart[0].hooks.length, 1);
 });
 
 test("README documents Claude Code, Codex, and pi installation", async () => {
