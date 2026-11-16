@@ -95,14 +95,37 @@ test("pi extension injects the shared norms file into the system prompt", async 
   assert.match(extension, /systemPrompt/);
 });
 
-test("Codex plugin manifest declares the session-wide integration", async () => {
+test("Codex loads the norms as a skill and ships no hooks", async () => {
   const manifest = JSON.parse(await readText(".codex-plugin/plugin.json"));
-  const hooks = JSON.parse(await readText("hooks/hooks.json"));
 
   assert.equal(manifest.name, "epistemic-norms");
   assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
   assert.equal(manifest.interface.displayName, "Epistemic Norms");
-  assert.equal(manifest.hooks, undefined);
+  assert.equal(manifest.skills, "./codex/skills/");
+  // An empty object stops Codex from discovering hooks/hooks.json.
+  assert.deepEqual(manifest.hooks, {});
+});
+
+test("Codex skill carries the exact norms text and provenance", async () => {
+  const norms = await readText("norms.md");
+  const provenance = await readText("provenance.txt");
+  const skill = await readText("codex/skills/epistemic-norms/SKILL.md");
+  const match = skill.match(/^---\n([\s\S]*?)\n---\n\n([\s\S]*)$/);
+
+  assert.ok(match, "SKILL.md needs YAML frontmatter followed by a blank line");
+  const [, frontmatter, body] = match;
+  assert.match(frontmatter, /^name: epistemic-norms$/m);
+  assert.match(frontmatter, /^description: You MUST load this skill .+$/m);
+  assert.equal(
+    body,
+    `${norms.trimEnd()}\n\n${provenance}`,
+    "SKILL.md body must equal norms.md plus provenance.txt",
+  );
+});
+
+test("Claude Code hook config stays in place", async () => {
+  const hooks = JSON.parse(await readText("hooks/hooks.json"));
+
   assert.equal(hooks.hooks.SessionStart[0].matcher, "startup|clear|compact");
   assert.match(
     hooks.hooks.SessionStart[0].hooks[0].command,
@@ -119,4 +142,5 @@ test("README documents Claude Code, Codex, and pi installation", async () => {
   assert.match(readme, /### pi/);
   assert.match(readme, /pi install git:github\.com\/iltempo\/epistemic-norms/);
   assert.match(readme, /extensions\/epistemic-norms\.ts/);
+  assert.match(readme, /codex\/skills\/epistemic-norms\/SKILL\.md/);
 });
