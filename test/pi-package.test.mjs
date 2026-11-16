@@ -125,6 +125,17 @@ test("Codex skill carries the exact norms text and provenance", async () => {
   );
 });
 
+test("Claude chat skill carries the exact norms text and provenance", async () => {
+  const norms = await readText("norms.md");
+  const provenance = await readText("provenance.txt");
+  const skill = await readText("skills/epistemic-norms/SKILL.md");
+  const match = skill.match(/^---\nname: epistemic-norms\ndescription: (.+)\n---\n\n([\s\S]*)$/);
+
+  assert.ok(match, "chat skill needs a name and description");
+  assert.ok(match[1].length <= 200, "Claude's skill description limit");
+  assert.equal(match[2], `${norms.trimEnd()}\n\n${provenance}`);
+});
+
 test("Claude Code hook config stays in place", async () => {
   const hooks = JSON.parse(await readText("hooks/hooks.json"));
 
@@ -156,6 +167,7 @@ const syncedFiles = [
   ".codex-plugin/plugin.json",
   "hooks/hooks.json",
   "codex/skills/epistemic-norms/SKILL.md",
+  "skills/epistemic-norms/SKILL.md",
 ];
 
 async function withRepoCopy(callback) {
@@ -217,11 +229,15 @@ test("sync bumps every versioned file consistently", async () => {
       await readCopy("hooks/hooks.json"),
       /Epistemic norms v9\.9\.9 loaded\./,
     );
-    assert.ok(
-      (await readCopy("codex/skills/epistemic-norms/SKILL.md")).endsWith(
-        `\n---\n\n${norms.trimEnd()}\n\n${provenance}`,
-      ),
-    );
+    for (const path of [
+      "codex/skills/epistemic-norms/SKILL.md",
+      "skills/epistemic-norms/SKILL.md",
+    ]) {
+      assert.ok(
+        (await readCopy(path)).endsWith(`\n---\n\n${norms.trimEnd()}\n\n${provenance}`),
+        path,
+      );
+    }
   });
 });
 

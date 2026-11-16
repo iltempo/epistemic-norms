@@ -86,12 +86,13 @@ await write(
   ),
 );
 
-// The Codex skill keeps its frontmatter; its body is the hook's output.
-const skillPath = "codex/skills/epistemic-norms/SKILL.md";
-const skill = await read(skillPath);
-const frontmatter = skill.match(/^---\n[\s\S]*?\n---\n/);
-if (!frontmatter) throw new Error(`${skillPath}: missing frontmatter`);
-await write(
-  skillPath,
-  `${frontmatter[0]}\n${norms.trimEnd()}\n\n${provenance}`,
-);
+// Skills keep their own discovery descriptions, but share the hook's output.
+for (const skillPath of [
+  "codex/skills/epistemic-norms/SKILL.md",
+  "skills/epistemic-norms/SKILL.md",
+]) {
+  const skill = await read(skillPath);
+  const frontmatter = skill.match(/^---\n[\s\S]*?\n---\n/);
+  if (!frontmatter) throw new Error(`${skillPath}: missing frontmatter`);
+  await write(skillPath, `${frontmatter[0]}\n${norms.trimEnd()}\n\n${provenance}`);
+}
