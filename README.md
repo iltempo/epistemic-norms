@@ -1,6 +1,6 @@
 # epistemic-norms
 
-A Claude Code and Codex plugin, plus a pi package, that gives the model a set of anti-sycophancy norms: in every session for Claude Code and pi, on demand for Codex.
+A Claude and Codex plugin, plus a pi package, that gives the model a set of anti-sycophancy norms: in every session for Claude Code and pi, and as an on-demand skill for supported chat surfaces and Codex.
 
 ## Why
 
@@ -54,6 +54,17 @@ To try it for one pi run without installing:
 pi -e git:github.com/iltempo/epistemic-norms
 ```
 
+### Claude Chat and ChatGPT Chat
+
+The plugin includes skills for chat, with their bodies generated from the same `norms.md` as the other integrations. Claude Chat uses [`skills/epistemic-norms/SKILL.md`](skills/epistemic-norms/SKILL.md); the OpenAI plugin uses the Codex skill. Hooks do not run in Claude Chat.
+
+For updates without manually uploading a new skill, use a repository-backed plugin marketplace where your account supports it:
+
+- Claude allows users to [add a marketplace from a Git repository](https://support.claude.com/en/articles/13837440-use-plugins-in-claude). Organization marketplaces can [sync from GitHub](https://support.claude.com/en/articles/13837433-manage-plugins-for-your-organization), with plan, repository visibility, and administrator requirements.
+- ChatGPT workspace administrators can [import a marketplace from GitHub](https://help.openai.com/en/articles/20001504-importing-and-syncing-plugin-marketplaces-from-github); automatic daily sync is enabled for new marketplaces. Access depends on workspace and plan settings.
+
+These routes require a compatible marketplace and its own configuration; the repository's existing marketplace is `iltempo/claude-plugins`. GitHub receives changes only after they are pushed. Sync can lag or fail, and individual chat skill selection is not guaranteed. Confirm the version and behavior in the intended product after setup.
+
 ## How it works
 
 All three integrations use the same [`norms.md`](norms.md). Its version, date, and SHA-256 fingerprint live in [`norms-metadata.json`](norms-metadata.json), giving reviewers a compact provenance record to audit.
@@ -64,7 +75,7 @@ Codex loads the norms as a skill, [`codex/skills/epistemic-norms/SKILL.md`](code
 
 pi loads the package's extension from `extensions/epistemic-norms.ts`. On each prompt, the extension verifies the fingerprint and appends `norms.md` plus its provenance record to pi's system prompt with the `before_agent_start` lifecycle hook.
 
-Every pull request runs the synchronization tests. A change fails verification unless the package and plugin versions match the provenance version, the date is valid, the recorded fingerprint matches the exact bytes of `norms.md`, `provenance.txt` matches the metadata, the hook banner shows the same version, and the Codex skill body matches `norms.md` plus `provenance.txt`. To bump the version, run `npm run sync -- <version>`; after editing the norms text, run `npm run sync` to refresh the fingerprint and every file that carries it.
+Every pull request runs the synchronization tests. A change fails verification unless the package and plugin versions match the provenance version, the date is valid, the recorded fingerprint matches the exact bytes of `norms.md`, `provenance.txt` matches the metadata, the hook banner shows the same version, and both skill bodies match `norms.md` plus `provenance.txt`. To bump the version, run `npm run sync -- <version>`; after editing the norms text, run `npm run sync` to refresh the fingerprint and every file that carries it.
 
 That's the entire mechanism; there is nothing else to audit.
 
