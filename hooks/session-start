@@ -1,0 +1,18 @@
+# SessionStart hook: print the norms followed by their provenance line.
+#
+# The hook command loads this file with the `.` builtin, so it needs no
+# executable bit, and it uses only shell builtins, so it works when the hook
+# runs with an empty PATH (anthropics/claude-code#43127). POSIX sh only:
+# macOS and Linux.
+
+root="${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}"
+
+print_file() {
+  while IFS= read -r line || [ -n "$line" ]; do
+    printf '%s\n' "$line"
+  done < "$1"
+}
+
+print_file "$root/norms.md"
+printf '\n'
+print_file "$root/provenance.txt"
