@@ -1,6 +1,8 @@
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { cp, mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { promisify } from "node:util";
@@ -143,4 +145,88 @@ test("README documents Claude Code, Codex, and pi installation", async () => {
   assert.match(readme, /pi install git:github\.com\/iltempo\/epistemic-norms/);
   assert.match(readme, /extensions\/epistemic-norms\.ts/);
   assert.match(readme, /codex\/skills\/epistemic-norms\/SKILL\.md/);
+});
+
+const syncedFiles = [
+  "norms.md",
+  "norms-metadata.json",
+  "provenance.txt",
+  "package.json",
+  ".claude-plugin/plugin.json",
+  ".codex-plugin/plugin.json",
+  "hooks/hooks.json",
+  "codex/skills/epistemic-norms/SKILL.md",
+];
+
+async function withRepoCopy(callback) {
+  const dir = await mkdtemp(join(tmpdir(), "epistemic-norms-sync-"));
+  try {
+    for (const path of syncedFiles) {
+      await cp(new URL(path, root), join(dir, path), { recursive: true });
+    }
+    const runSync = (...args) =>
+      execFileAsync(
+        process.execPath,
+        [new URL("scripts/sync.mjs", root).pathname, ...args],
+        { env: { ...process.env, EPISTEMIC_NORMS_ROOT: dir } },
+      );
+    const readCopy = (path) => readFile(join(dir, path), "utf8");
+    await callback(runSync, readCopy);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+}
+
+test("sync leaves an in-sync repository unchanged", async () => {
+  await withRepoCopy(async (runSync, readCopy) => {
+    const { stdout } = await runSync();
+
+    assert.equal(stdout, "");
+    for (const path of syncedFiles) {
+      assert.equal(await readCopy(path), await readText(path), path);
+    }
+  });
+});
+
+test("sync bumps every versioned file consistently", async () => {
+  await withRepoCopy(async (runSync, readCopy) => {
+    await runSync("9.9.9", "2030-01-02");
+
+    const norms = await readCopy("norms.md");
+    const sha256 = createHash("sha256").update(norms).digest("hex");
+    const provenance =
+      "Epistemic norms provenance: version 9.9.9; " +
+      `dated 2030-01-02; SHA-256 ${sha256}.\n`;
+
+    assert.match(norms, /^Version: 9\.9\.9$/m);
+    assert.match(norms, /^Date: 2030-01-02$/m);
+    assert.deepEqual(JSON.parse(await readCopy("norms-metadata.json")), {
+      version: "9.9.9",
+      date: "2030-01-02",
+      sha256,
+    });
+    assert.equal(await readCopy("provenance.txt"), provenance);
+    for (const path of [
+      "package.json",
+      ".claude-plugin/plugin.json",
+      ".codex-plugin/plugin.json",
+    ]) {
+      assert.equal(JSON.parse(await readCopy(path)).version, "9.9.9", path);
+    }
+    assert.match(
+      await readCopy("hooks/hooks.json"),
+      /Epistemic norms v9\.9\.9 loaded\./,
+    );
+    assert.ok(
+      (await readCopy("codex/skills/epistemic-norms/SKILL.md")).endsWith(
+        `\n---\n\n${norms.trimEnd()}\n\n${provenance}`,
+      ),
+    );
+  });
+});
+
+test("sync rejects a malformed version", async () => {
+  await withRepoCopy(async (runSync) => {
+    await assert.rejects(runSync("1.4"), /version must look like 1\.2\.3/);
+  });
 });

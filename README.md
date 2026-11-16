@@ -64,7 +64,7 @@ Codex loads the norms as a skill, [`codex/skills/epistemic-norms/SKILL.md`](code
 
 pi loads the package's extension from `extensions/epistemic-norms.ts`. On each prompt, the extension verifies the fingerprint and appends `norms.md` plus its provenance record to pi's system prompt with the `before_agent_start` lifecycle hook.
 
-Every pull request runs the synchronization tests. A change fails verification unless the package and plugin versions match the provenance version, the date is valid, the recorded fingerprint matches the exact bytes of `norms.md`, `provenance.txt` matches the metadata, the hook banner shows the same version, and the Codex skill body matches `norms.md` plus `provenance.txt`.
+Every pull request runs the synchronization tests. A change fails verification unless the package and plugin versions match the provenance version, the date is valid, the recorded fingerprint matches the exact bytes of `norms.md`, `provenance.txt` matches the metadata, the hook banner shows the same version, and the Codex skill body matches `norms.md` plus `provenance.txt`. To bump the version, run `npm run sync -- <version>`; after editing the norms text, run `npm run sync` to refresh the fingerprint and every file that carries it.
 
 That's the entire mechanism; there is nothing else to audit.
 
