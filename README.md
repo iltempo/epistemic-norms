@@ -10,13 +10,9 @@ The same posture shows up toward text that is not yours: an agent reads far more
 
 This plugin adds a short set of epistemic norms to the model's context at session start:
 
-- Don't adopt the user's framing silently — flag questions that presuppose their answer.
-- For contested judgments, state the strongest credible alternative or objection that materially affects the conclusion, weighted by evidence; do not manufacture disagreement or equal balance.
-- Label claims as externally checkable vs. judgment calls, say what a checkable claim rests on, and make cheap checks before asserting. Match checks to claims, scope completion, safety, and relevance claims ("fixed", "safe", "unrelated") to the evidence, and use and link primary sources for material claims.
-- Flag answers that would change under a rephrasing or an opposite stake.
-- Respect user goals and preferences without treating confidence or a preferred factual conclusion as evidence.
-- No manufactured pushback — genuine agreement gets stated plainly, with what evidence would change it. Revise on evidence, not on insistence. Give a clear recommendation when the evidence warrants one.
-- For consequential decisions, recommend a fresh-session re-ask with neutral phrasing and independent verification of the key claims.
+- Flag questions that presuppose their answer or signal a preferred conclusion.
+- For contested judgments, state the strongest credible objection, weighted by evidence. No manufactured disagreement; genuine agreement gets stated plainly. Revise on evidence, not on insistence or confidence. Give a clear recommendation when the evidence warrants one.
+- Say what a checkable claim rests on, make cheap checks before asserting, scope claims like "fixed", "safe", or "unrelated" to the evidence, and link primary sources for material external claims.
 
 The full text lives in [`norms.md`](norms.md).
 
@@ -86,6 +82,8 @@ In Codex the norms apply only in turns where the model loads the skill. In a sma
 These norms aim to reduce framing-driven agreement and unsupported reliance on apparently authoritative claims. Their effectiveness has not yet been established by comparative evaluation. They do not establish model neutrality or eliminate fixed biases. They can also produce performative criticism: pushback that exists because it was requested. Treat instructed disagreement with the same scrutiny as instructed agreement, and keep some of your evaluation outside the conversation: re-ask important questions in fresh sessions, compare answers across opposed framings, and check predictions against outcomes.
 
 Sound epistemic advice and an instruction that measurably changes model output are different things. In [AISI's "Ask Don't Tell" (2026)](https://www.aisi.gov.uk/blog/ask-dont-tell-reducing-sycophancy-in-large-language-models-2), reframing the input as a question outperformed a generic anti-sycophancy instruction on GPT-4o, GPT-5, and Claude Sonnet 4.5. The study supports question reframing in the tested setting; it does not validate this norms block or establish the benefit of restarting a conversation. Its synthetic single-turn tasks and model-based grading limit generalization. A fresh-session assessment is not itself independent evidence that a conclusion is correct.
+
+A small A/B check in November 2026 (Claude Opus 5.5 and Sonnet 5.5, GPT-6 Astra, GPT-6.1 Terra, GPT-6 Luna; synthetic prompts; answers graded by Opus 5.5) found no measurable gain in correctness: without the norms the models already resisted opposite framings, caught ticked tasks and comments that the code contradicted, and held correct answers through three turns of insistence. The measured differences on Opus were that leading questions were flagged more often (24 of 24 answers versus 16 of 24) and answers ran about 15–20% longer. The samples were small, the cases easy, and no rule was tested on its own. Version 1.5.0 therefore keeps three rules and drops the ones about framing sensitivity, user goals, and fresh-session re-asks; that cut is a judgment call, not a measured result.
 
 The "cheap check" rule may increase tool calls and, in permission modes that require confirmation, approval prompts. The evaluation plan from [#5](https://github.com/iltempo/epistemic-norms/issues/5) is consolidated in [PR #6](https://github.com/iltempo/epistemic-norms/pull/6); comparative evaluation remains outstanding.
 
